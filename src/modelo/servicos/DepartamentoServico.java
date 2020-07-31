@@ -10,9 +10,14 @@ public class DepartamentoServico {
 
 	private DepartamentoDao dao = DaoFactory.criarDepartamentoDao();
 	
-	public List<Departamento> findAll(){
-		
+	public List<Departamento> findAll(){	
 		return dao.findAll();
-		
+	}
+	
+	public void salvarOuAtualizar(Departamento obj) {
+		if(obj.getId() == null) 
+			dao.insert(obj);
+		else
+			dao.update(obj);
 	}
 }
