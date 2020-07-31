@@ -3,7 +3,9 @@ package gui;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import db.DbException;
 import gui.listeners.DataChangeListener;
@@ -18,6 +20,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import modelo.entidades.Departamento;
+import modelo.exceptions.ValidarException;
 import modelo.servicos.DepartamentoServico;
 
 public class DepartamentoFormaController implements Initializable {
@@ -63,6 +66,8 @@ public class DepartamentoFormaController implements Initializable {
 			Utils.palcoAtual(event).close();
 		} catch (DbException e) {
 			Alertas.showAlert("Erro ao salvar", null, e.getMessage(), AlertType.ERROR);
+		}catch(ValidarException e) {
+			setMensagemErro(e.getErros());
 		}
 
 	}
@@ -75,8 +80,15 @@ public class DepartamentoFormaController implements Initializable {
 
 	private Departamento getFormaDados() {
 		Departamento obj = new Departamento();
+		ValidarException exception = new ValidarException("Erro ao validar");
 		obj.setId(Utils.tryParseToInt(txtId.getText()));
+		
+		if(txtNome.getText() == null || txtNome.getText().trim().equals(""));
+		exception.addErro("nome", "Campo não pode ser vazio");
 		obj.setNome(txtNome.getText());
+	
+		if(exception.getErros().size() > 0)
+			throw exception;
 		return obj;
 	}
 
@@ -103,6 +115,13 @@ public class DepartamentoFormaController implements Initializable {
 
 		txtId.setText(String.valueOf(entidade.getId()));
 		txtNome.setText(entidade.getNome());
+	}
+	
+	private void setMensagemErro(Map<String, String> erros) {
+		Set<String> campos = erros.keySet();
+		
+		if(campos.contains("nome"))
+			labelErroNome.setText(erros.get("nome"));
 	}
 
 }
