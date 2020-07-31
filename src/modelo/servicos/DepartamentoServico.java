@@ -1,18 +1,18 @@
 package modelo.servicos;
 
-import java.util.ArrayList;
 import java.util.List;
 
+import model.dao.DaoFactory;
+import model.dao.DepartamentoDao;
 import modelo.entidades.Departamento;
 
 public class DepartamentoServico {
 
+	private DepartamentoDao dao = DaoFactory.criarDepartamentoDao();
+	
 	public List<Departamento> findAll(){
-		List<Departamento> lista = new ArrayList<Departamento>();
-		lista.add(new Departamento(1, "Livros"));
-		lista.add(new Departamento(2, "Computadores"));
-		lista.add(new Departamento(3, "Eletronicos"));
-		return lista;
+		
+		return dao.findAll();
 		
 	}
 }
