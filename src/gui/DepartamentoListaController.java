@@ -9,6 +9,7 @@ import application.Main;
 import gui.listeners.DataChangeListener;
 import gui.util.Alertas;
 import gui.util.Utils;
+import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -18,6 +19,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -30,7 +32,7 @@ import modelo.servicos.DepartamentoServico;
 public class DepartamentoListaController implements Initializable, DataChangeListener {
 
 	private DepartamentoServico servico;
-	
+
 	@FXML
 	private TableView<Departamento> tableViewDepartamento;
 	@FXML
@@ -38,22 +40,23 @@ public class DepartamentoListaController implements Initializable, DataChangeLis
 	@FXML
 	private TableColumn<Departamento, String> tabelaColunaNome;
 	@FXML
+	private TableColumn<Departamento, Departamento> tabelaColunaEditar;
+	@FXML
 	private Button btNovo;
 
 	private ObservableList<Departamento> obsLista;
-	
-	
+
 	@FXML
 	public void onBtNovoAction(ActionEvent event) {
 		Stage parentStage = Utils.palcoAtual(event);
 		Departamento obj = new Departamento();
-		criarFormaDialogo(obj,"/gui/DepartamentoForma.fxml", parentStage);
+		criarFormaDialogo(obj, "/gui/DepartamentoForma.fxml", parentStage);
 	}
 
 	public void setDepartamentoServico(DepartamentoServico servico) {
 		this.servico = servico;
 	}
-	
+
 	@Override
 	public void initialize(URL url, ResourceBundle rb) {
 		initializeNodes();
@@ -67,27 +70,28 @@ public class DepartamentoListaController implements Initializable, DataChangeLis
 		tableViewDepartamento.prefHeightProperty().bind(stage.heightProperty());
 
 	}
-	
+
 	public void atualizarTableView() {
-		if(servico == null) 
+		if (servico == null)
 			throw new IllegalStateException("Servico esta nulo");
-		
+
 		List<Departamento> lista = servico.findAll();
 		obsLista = FXCollections.observableList(lista);
 		tableViewDepartamento.setItems(obsLista);
+		initEditButtons();
 	}
 
 	private void criarFormaDialogo(Departamento obj, String nomeAbsoluto, Stage parentStage) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(nomeAbsoluto));
 			Pane pane = loader.load();
-			
+
 			DepartamentoFormaController controller = loader.getController();
 			controller.setDepartamento(obj);
 			controller.setDepartamentoServico(new DepartamentoServico());
 			controller.inscreverDataChangeListener(this);
 			controller.atualizarFormaDados();
-			
+
 			Stage dialogStage = new Stage();
 			dialogStage.setTitle("Digite os dados do departamento");
 			dialogStage.setScene(new Scene(pane));
@@ -95,8 +99,8 @@ public class DepartamentoListaController implements Initializable, DataChangeLis
 			dialogStage.initOwner(parentStage);
 			dialogStage.initModality(Modality.WINDOW_MODAL);
 			dialogStage.showAndWait();
-			
-		} catch(IOException e) {
+
+		} catch (IOException e) {
 			Alertas.showAlert("IO Exception", "Erro ao carregar página", e.getMessage(), AlertType.ERROR);
 		}
 	}
@@ -104,6 +108,26 @@ public class DepartamentoListaController implements Initializable, DataChangeLis
 	@Override
 	public void onMudancaDados() {
 		atualizarTableView();
-		
+
 	}
+
+	private void initEditButtons() {
+		tabelaColunaEditar.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
+		tabelaColunaEditar.setCellFactory(param -> new TableCell<Departamento, Departamento>() {
+			private final Button button = new Button("editar");
+
+			@Override
+			protected void updateItem(Departamento obj, boolean empty) {
+				super.updateItem(obj, empty);
+				if (obj == null) {
+					setGraphic(null);
+					return;
+				}
+				setGraphic(button);
+				button.setOnAction(
+						event -> criarFormaDialogo(obj, "/gui/DepartamentoForma.fxml", Utils.palcoAtual(event)));
+			}
+		});
+	}
+
 }
