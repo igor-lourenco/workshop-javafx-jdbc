@@ -114,9 +114,9 @@ public class VendedorDaoJDBC implements VendedorDao {
 		ResultSet rs = null;
 		try {
 			st = conn.prepareStatement(
-					"SELECT vendedor.*,department.Name as DepName "
-					+ "FROM vendedor INNER JOIN department "
-					+ "ON vendedor.DepartmentId = department.Id "
+					"SELECT vendedor.*,departamento.Nome as DepName "
+					+ "FROM vendedor INNER JOIN departamento "
+					+ "ON vendedor.DepartamentoId = departamento.Id "
 					+ "WHERE vendedor.Id = ?");
 			
 			st.setInt(1, id);
@@ -140,17 +140,17 @@ public class VendedorDaoJDBC implements VendedorDao {
 	private Vendedor instantiateSeller(ResultSet rs, Departamento dep) throws SQLException {
 		Vendedor obj = new Vendedor();
 		obj.setId(rs.getInt("Id"));
-		obj.setNome(rs.getString("Name"));
+		obj.setNome(rs.getString("Nome"));
 		obj.setEmail(rs.getString("Email"));
-		obj.setSalarioBase(rs.getDouble("BaseSalary"));
-		obj.setDataAniversario(rs.getDate("BirthDate"));
+		obj.setSalarioBase(rs.getDouble("SalarioBase"));
+		obj.setDataAniversario(rs.getDate("dataAniversario"));
 		obj.setDepartamento(dep);
 		return obj;
 	}
 
 	private Departamento instantiateDepartment(ResultSet rs) throws SQLException {
 		Departamento dep = new Departamento();
-		dep.setId(rs.getInt("DepartmentId"));
+		dep.setId(rs.getInt("DepartamentoId"));
 		dep.setNome(rs.getString("DepName"));
 		return dep;
 	}
@@ -161,10 +161,10 @@ public class VendedorDaoJDBC implements VendedorDao {
 		ResultSet rs = null;
 		try {
 			st = conn.prepareStatement(
-					"SELECT vendedor.*,department.Name as DepName "
-					+ "FROM vendedor INNER JOIN department "
-					+ "ON vendedor.DepartmentId = department.Id "
-					+ "ORDER BY Name");
+					"SELECT vendedor.*,departamento.Nome as DepName "
+					+ "FROM vendedor INNER JOIN departamento "
+					+ "ON vendedor.DepartamentoId = departamento.Id "
+					+ "ORDER BY Nome");
 			
 			rs = st.executeQuery();
 			
@@ -173,11 +173,11 @@ public class VendedorDaoJDBC implements VendedorDao {
 			
 			while (rs.next()) {
 				
-				Departamento dep = map.get(rs.getInt("DepartmentId"));
+				Departamento dep = map.get(rs.getInt("DepartamentoId"));
 				
 				if (dep == null) {
 					dep = instantiateDepartment(rs);
-					map.put(rs.getInt("DepartmentId"), dep);
+					map.put(rs.getInt("DepartamentoId"), dep);
 				}
 				
 				Vendedor obj = instantiateSeller(rs, dep);
