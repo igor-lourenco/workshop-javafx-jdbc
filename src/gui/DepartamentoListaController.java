@@ -3,9 +3,12 @@ package gui;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import application.Main;
+import db.DbException;
+import db.DbIntegrityException;
 import gui.listeners.DataChangeListener;
 import gui.util.Alertas;
 import gui.util.Utils;
@@ -19,6 +22,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -41,6 +45,8 @@ public class DepartamentoListaController implements Initializable, DataChangeLis
 	private TableColumn<Departamento, String> tabelaColunaNome;
 	@FXML
 	private TableColumn<Departamento, Departamento> tabelaColunaEditar;
+	@FXML
+	private TableColumn<Departamento, Departamento> tabelaColunaRemover;
 	@FXML
 	private Button btNovo;
 
@@ -79,6 +85,7 @@ public class DepartamentoListaController implements Initializable, DataChangeLis
 		obsLista = FXCollections.observableList(lista);
 		tableViewDepartamento.setItems(obsLista);
 		initEditButtons();
+		initRemoveButtons();
 	}
 
 	private void criarFormaDialogo(Departamento obj, String nomeAbsoluto, Stage parentStage) {
@@ -111,10 +118,11 @@ public class DepartamentoListaController implements Initializable, DataChangeLis
 
 	}
 
+	/* método para editar a tabela */
 	private void initEditButtons() {
 		tabelaColunaEditar.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
 		tabelaColunaEditar.setCellFactory(param -> new TableCell<Departamento, Departamento>() {
-			private final Button button = new Button("editar");
+			private final Button button = new Button("Editar");
 
 			@Override
 			protected void updateItem(Departamento obj, boolean empty) {
@@ -128,6 +136,43 @@ public class DepartamentoListaController implements Initializable, DataChangeLis
 						event -> criarFormaDialogo(obj, "/gui/DepartamentoForma.fxml", Utils.palcoAtual(event)));
 			}
 		});
+	}
+
+	/* método para remover departamento */
+	private void initRemoveButtons() {
+		tabelaColunaRemover.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>(param.getValue()));
+		tabelaColunaRemover.setCellFactory(param -> new TableCell<Departamento, Departamento>() {
+			private final Button button = new Button("Remover");
+
+			@Override
+			protected void updateItem(Departamento obj, boolean empty) {
+				super.updateItem(obj, empty);
+				if (obj == null) {
+					setGraphic(null);
+					return;
+				}
+				setGraphic(button);
+				button.setOnAction(event -> removerEntidade(obj));
+			}
+		});
+	}
+
+	private void removerEntidade(Departamento obj) {
+		Optional<ButtonType> resultado = Alertas.showConfirmacao("Confirmação", "Tem certeza que você deseja deletar");
+
+		if (resultado.get() == ButtonType.OK) {
+			if (servico == null)
+				throw new IllegalStateException("Servico nulo");
+
+			try {
+				servico.remover(obj);
+				atualizarTableView();
+			} catch (DbIntegrityException e) {
+				Alertas.showAlert("Erro ao remover", null, e.getMessage(), AlertType.ERROR);
+
+			}
+
+		}
 	}
 
 }
