@@ -99,7 +99,7 @@ public class DepartamentoListaController implements Initializable, DataChangeLis
 			controller.atualizarFormaDados();
 
 			Stage dialogStage = new Stage();
-			dialogStage.setTitle("Digite os dados do departamento");
+			dialogStage.setTitle("Digite os dados do Departamento");
 			dialogStage.setScene(new Scene(pane));
 			dialogStage.setResizable(false);
 			dialogStage.initOwner(parentStage);
