@@ -31,6 +31,7 @@ import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import modelo.entidades.Vendedor;
+import modelo.servicos.DepartamentoServico;
 import modelo.servicos.VendedorServico;
 
 public class VendedorListaController implements Initializable, DataChangeListener {
@@ -106,7 +107,8 @@ public class VendedorListaController implements Initializable, DataChangeListene
 
 			VendedorFormaController controller = loader.getController();
 			controller.setVendedor(obj);
-			controller.setVendedorServico(new VendedorServico());
+			controller.setServicos(new VendedorServico(), new DepartamentoServico());
+			controller.carregarObjetosAssociados();
 			controller.inscreverDataChangeListener(this);
 			controller.atualizarFormaDados();
 
