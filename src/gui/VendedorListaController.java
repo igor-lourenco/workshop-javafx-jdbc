@@ -121,6 +121,7 @@ public class VendedorListaController implements Initializable, DataChangeListene
 			dialogStage.showAndWait();
 
 		} catch (IOException e) {
+			e.printStackTrace();
 			Alertas.showAlert("IO Exception", "Erro ao carregar página", e.getMessage(), AlertType.ERROR);
 		}
 		
